@@ -1,0 +1,26 @@
+{
+    "collab_server" : "",
+    "contents" : "",
+    "created" : 1580854955950.000,
+    "dirty" : false,
+    "encoding" : "UTF-8",
+    "folds" : "",
+    "hash" : "0",
+    "id" : "45F5FEFA",
+    "lastKnownWriteTime" : 1580857553,
+    "last_content_update" : 1580857553056,
+    "path" : "~/Documents/python/algos_for_dna_seq/python/assignment_2.py",
+    "project_path" : "python/assignment_2.py",
+    "properties" : {
+        "cursorPosition" : "21,61",
+        "scrollLine" : "15",
+        "tempName" : "Untitled1"
+    },
+    "read_only" : false,
+    "read_only_alternatives" : [
+    ],
+    "relative_order" : 5,
+    "source_on_save" : false,
+    "source_window" : "",
+    "type" : "python"
+}

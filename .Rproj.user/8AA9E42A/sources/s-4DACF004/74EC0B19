@@ -1,0 +1,26 @@
+{
+    "collab_server" : "",
+    "contents" : "",
+    "created" : 1580854927370.000,
+    "dirty" : false,
+    "encoding" : "UTF-8",
+    "folds" : "",
+    "hash" : "0",
+    "id" : "74EC0B19",
+    "lastKnownWriteTime" : 1580855132,
+    "last_content_update" : 1580855132964,
+    "path" : "~/Documents/python/algos_for_dna_seq/python/boyer_moore_pre_proc.py",
+    "project_path" : "python/boyer_moore_pre_proc.py",
+    "properties" : {
+        "cursorPosition" : "2,23",
+        "scrollLine" : "0",
+        "tempName" : "Untitled1"
+    },
+    "read_only" : false,
+    "read_only_alternatives" : [
+    ],
+    "relative_order" : 4,
+    "source_on_save" : false,
+    "source_window" : "",
+    "type" : "python"
+}
