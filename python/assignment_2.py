@@ -115,7 +115,183 @@ def boyer_moore_with_counts(p, p_bm, t):
 
 
 
-from python.assignment_1 import read_fastq
+from python.assignment_1 import read_genome, naive_2mm
 
 
-t = read_fastq('data/week_2_hw.fasta')
+
+'''
+Implement the pigeonhole principle using Index class
+to find exact matches for the partitions. Assume P always has 
+length 24, and that we are looking for approximate matches with
+up to 2 mismatches (substitutions). We will use an 8-mer index.
+
+Download the Python module for building a k-mer index.
+
+https://d28rh4a8wq0iu5.cloudfront.net/ads1/code/kmer_index.py
+
+Write a function that, given a length-24 pattern P and given an 
+Index\verb|Index|Index object built on 8-mers, finds all approximate 
+occurrences of P within T with up to 2 mismatches. Insertions and 
+deletions are not allowed. Don't consider any reverse complements.
+
+How many times does the string GGCGCGGTGGCTCACGCCTGTAAT\verb|
+GGCGCGGTGGCTCACGCCTGTAAT|GGCGCGGTGGCTCACGCCTGTAAT, which is 
+derived from a human Alu sequence, occur with up to 2 substitutions 
+in the excerpt of human chromosome 1? (Don't consider reverse complements here.)
+
+Hint 1: Multiple index hits might direct you to the same match multiple 
+times, but be careful not to count a match more than once.
+
+Hint 2: You can check your work by comparing the output 
+of your new function to that of the naive_2mm function 
+implemented in the previous module.
+'''
+
+import bisect
+
+class Index(object):
+    def __init__(self, t, k):
+        ''' Create index from all substrings of size 'length' '''
+        self.k = k  # k-mer length (k)
+        self.index = []
+        for i in range(len(t) - k + 1):  # for each k-mer
+            self.index.append((t[i:i+k], i))  # add (k-mer, offset) pair
+        self.index.sort()  # alphabetize by k-mer
+    
+    def query(self, p):
+        ''' Return index hits for first k-mer of P '''
+        kmer = p[:self.k]  # query with first k-mer
+        i = bisect.bisect_left(self.index, (kmer, -1))  # binary search
+        hits = []
+        while i < len(self.index):  # collect matching index entries
+            if self.index[i][0] != kmer:
+                break
+            hits.append(self.index[i][1])
+            i += 1
+        return hits
+
+
+
+def build_index_and_call_pattern(p, t):
+  
+  # create an index of 8-mers for the text
+  
+  index = Index(t, 8)
+  
+  # now for each 8 mer in a length 24 pattern we will query the data
+  # we are allowing up to 2 mismatches, so we must match at least one
+  # of the 3 8-mer partitions in the 24 bp pattern
+  
+  # for testing
+  from python.assignment_1 import naive_2mm
+  hit_idxs = []
+  verified_hit_idxs = []
+  
+  for i in range(0, 24-8+1, 8): 
+    kmer = p[i:i+8]
+    print('kmer: ', kmer)
+    res = index.query(kmer)
+    print(res)
+    if len(res) >= 1: 
+      hit_idxs.extend(res)
+      for match_ind in res: 
+        # verify match
+        ind = match_ind-i
+        if len(naive_2mm(p, t[ind:ind+24])) >= 1:
+          verified_hit_idxs.append(ind)
+  
+  print('Total kmer hits: ', nhits)
+  print('Total amount of unique indices returned: ', len(set(hit_idxs)))
+  print('Unique verified indexed hit counts: ', len(set(verified_hit_idxs)))
+  
+  print('Naive hit counts: ', len(naive_2mm(p, t)))
+  
+t = read_genome('data/week_2_hw.fasta')
+build_index_and_call_pattern('GGCGCGGTGGCTCACGCCTGTAAT', t)
+
+
+import bisect
+   
+class SubseqIndex(object):
+    """ Holds a subsequence index for a text T """
+    
+    def __init__(self, t, k, ival):
+        """ Create index from all subsequences consisting of k characters
+            spaced ival positions apart.  E.g., SubseqIndex("ATAT", 2, 2)
+            extracts ("AA", 0) and ("TT", 1). """
+        self.k = k  # num characters per subsequence extracted
+        self.ival = ival  # space between them; 1=adjacent, 2=every other, etc
+        self.index = []
+        self.span = 1 + ival * (k - 1)
+        for i in range(len(t) - self.span + 1):  # for each subseq
+            self.index.append((t[i:i+self.span:ival], i))  # add (subseq, offset)
+        self.index.sort()  # alphabetize by subseq
+    
+    def query(self, p):
+        """ Return index hits for first subseq of p """
+        subseq = p[:self.span:self.ival]  # query with first subseq
+        i = bisect.bisect_left(self.index, (subseq, -1))  # binary search
+        hits = []
+        while i < len(self.index):  # collect matching index entries
+            if self.index[i][0] != subseq:
+                break
+            hits.append(self.index[i][1])
+            i += 1
+        return hits
+
+
+
+
+'''
+Write a function that, given a length-24 pattern P and 
+given a SubseqIndex object built with k = 8 and ival = 3, 
+finds all approximate occurrences of P within T 
+with up to 2 mismatches.
+
+When using this function, how many total index hits are there when 
+searching for GGCGCGGTGGCTCACGCCTGTAAT with up to 2 substitutions 
+in the excerpt of human chromosome 1? (Again, don't consider 
+reverse complements.
+'''
+
+
+def build_index_and_call_pattern_2(p, t): 
+
+  index = SubseqIndex(t, 8, 3)
+  
+  hit_idxs = []
+  verified_hit_idxs = []
+  
+  for i in range(0, 3):
+    kmer = p[i:]
+    res = index.query(kmer)
+    print(res)
+    if len(res) >= 1:
+      hit_idxs.extend(res)
+      for match_ind in res:
+        # verify match
+        ind = match_ind-i
+        print(t[ind:ind+24])
+        if len(naive_2mm(p, t[ind:ind+24])) >= 1:
+          verified_hit_idxs.append(ind)
+  
+  
+  
+  print('Number of index hits: ', len(set(hit_idxs)))
+  print('Verified indexed hit counts: ', len(set(verified_hit_idxs)))
+  print('Naive hit counts: ', len(naive_2mm(p, t)))
+
+
+p = 'GGCGCGGTGGCTCACGCCTGTAAT'
+t = read_genome('data/week_2_hw.fasta')
+
+build_index_and_call_pattern_2(p, t)
+
+'''
+messed up number of hits, was counting number of indices
+I was checking but there could be multiple indices per hit
+'''
+
+
+
+
